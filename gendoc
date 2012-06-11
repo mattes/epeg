@@ -1,0 +1,13 @@
+#!/bin/sh
+cp ./epeg.c.in ./epeg.c
+#for I in `find ./src/lib -name "Epeg.h" -print`; do
+#  cat $I >> ./epeg.c
+#done
+for I in `find ./src/lib -name "*.c" -print`; do
+  cat $I >> ./epeg.c
+done
+rm -rf ./doc/html ./doc/latex ./doc/man
+doxygen
+cp doc/img/*.png doc/html/
+cp doc/img/*.gif doc/html/
+exit 0

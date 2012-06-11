@@ -1,0 +1,38 @@
+Source: epeg
+Section: libs
+Priority: optional
+Maintainer: E17 Debian Team <debian@edevelop.org>
+Build-Depends: cdbs, debhelper (>= 5), libjpeg62-dev
+Standards-Version: 3.7.2
+
+Package: libepeg0-dev
+Section: libdevel
+Architecture: any
+Depends: libepeg0 (= ${Source-Version}), libjpeg62-dev
+Provides: libepeg-dev
+Description: Enlightenment jpeg thumbnailer library development files
+ This package contains headers and static libraries for development with
+ libepeg.
+
+Package: libepeg0
+Section: libs
+Architecture: any
+Suggests: epeg-bin
+Depends: ${shlibs:Depends}
+Provides: libepeg
+Description: Enlightenment jpeg thumbnailer library API
+ It's a convenience library API to using libjpeg to load JPEG images
+ destined to be turned into thumbnails of the original, saving
+ information with these thumbnails, retreiving it and managing to load
+ the image ready for scaling with the minimum of fuss and CPU overhead.
+
+Package: epeg0-bin
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Provides: epeg-bin
+Description: Enlightenment jpeg thumbnailer programs
+ It's a convenience library API to using libjpeg to load JPEG images
+ destined to be turned into thumbnails of the original, saving
+ information with these thumbnails, retreiving it and managing to load
+ the image ready for scaling with the minimum of fuss and CPU overhead.

@@ -1,0 +1,10 @@
+prefix=
+exec_prefix=
+libdir=${pcfiledir}/src/lib/.libs
+includedir=${pcfiledir}/src/lib
+
+Name: epeg
+Description: Epeg JPEG thumbnailer library (not installed)
+Version: @VERSION@
+Libs: ${libdir}/libepeg.a -ljpeg
+Cflags: -I${includedir}

@@ -1,0 +1,14 @@
+COMPILING and INSTALLING:
+
+If you got a official release tar archive do:
+    ./configure
+    
+( otherwise if you got this from enlightenment cvs do: ./autogen.sh )
+    
+Then to compile:
+    make
+
+To install (run this as root, or the user who handles installs):
+    make install
+
+NOTE: You MUST make install Epeg for it to run properly.
