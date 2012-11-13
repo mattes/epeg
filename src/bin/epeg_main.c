@@ -109,7 +109,7 @@ main(int argc, char **argv)
 
    if (!input_file || !output_file) usage(argv[0]);
 
-   if (!thumb_comment) thumb_comment = "Smelly pants!";
+   if (!thumb_comment) thumb_comment = "";
 
    im = epeg_file_open(input_file);
    if (!im) {
