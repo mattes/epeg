@@ -8,6 +8,7 @@ static int verbose_flag = 0;
 static int thumb_width = 0; // < 0 means % of input
 static int thumb_height = 0; // < 0 means % of input
 static int max_dimension = 0; // > 0 means we reduce max(w,h) to max_dimension, with aspect preserved
+static int thumb_quality = 85; // Quality value from 1 to 100
 static char *thumb_comment = NULL;
 static struct option long_options[] =
 {
@@ -15,6 +16,7 @@ static struct option long_options[] =
     {"width",   required_argument, 0, 'w'},
     {"height",  required_argument, 0, 'h'},
     {"max",     required_argument, 0, 'm'},
+    {"quality", required_argument, 0, 'q'},
     {"comment", required_argument, 0, 'c'},
     {0, 0, 0, 0}
 };
@@ -27,7 +29,8 @@ usage(const char *myname)
 	   " -w,  --width=<width>[%%]   set thumbnail width [%% of input]\n"
 	   " -h,  --height=<heigth>[%%] set thumbnail heigth [%% of input]\n"
 	   " -m,  --max=<maximum>       reduce max(w,h) to maximum, with aspect preserved\n"
-	   " -c,  --comment=<comment>   put a comment in thumbnail\n", myname);
+	   " -c,  --comment=<comment>   put a comment in thumbnail\n"
+	   " -q,  --quality=<quality>   set thumbnail quality (1-100)\n", myname);
     exit(0);
 }
 
@@ -40,7 +43,7 @@ main(int argc, char **argv)
    char *input_file = NULL, *output_file = NULL;
    char *p;
 
-   while ((c = getopt_long(argc, argv, "w:h:vc:m:", long_options, &option_index)) != -1) {
+   while ((c = getopt_long(argc, argv, "w:h:vc:m:q:", long_options, &option_index)) != -1) {
        switch (c) {
        case 0:
 	   usage(argv[0]);
@@ -74,6 +77,13 @@ main(int argc, char **argv)
 	   max_dimension = strtol(optarg, NULL, 10);
 	   if (verbose_flag) printf("max_dimension = %d\n", max_dimension);
 	   break;
+	   case 'q':
+	   thumb_quality = strtol(optarg, NULL, 10);
+	   if (thumb_quality < 1 | thumb_quality > 100) {
+	       fprintf(stderr, "setting thumb_quality to default of 85\n");
+	       thumb_quality = 85;
+	   }
+	   if (verbose_flag) printf("thumb_quality = %d\n", thumb_quality);
        case 'c':
 	   thumb_comment = strdup(optarg);
 	   if (verbose_flag) printf("thumb_comment = %s\n", thumb_comment);
@@ -99,7 +109,7 @@ main(int argc, char **argv)
 
    if (!input_file || !output_file) usage(argv[0]);
 
-   if (!thumb_comment) thumb_comment = "Smelly pants!";
+   if (!thumb_comment) thumb_comment = "";
 
    im = epeg_file_open(input_file);
    if (!im) {
@@ -147,7 +157,7 @@ main(int argc, char **argv)
    
    if (verbose_flag) printf("Thumb size: %dx%d\n", thumb_width, thumb_height);
    epeg_decode_size_set(im, thumb_width, thumb_height);
-   epeg_quality_set               (im, 80);
+   epeg_quality_set               (im, thumb_quality);
    epeg_thumbnail_comments_enable (im, 1);
    epeg_comment_set               (im, thumb_comment);
    epeg_file_output_set           (im, output_file);
