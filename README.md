@@ -19,9 +19,17 @@ desired. This gives a massive speedup. If you do not try and access the pixels
 in a format other than YUV (or GRAY8 if the source is grascale) then it also
 avoids colorspace conversions as well.
 
+Original Version
+----------------
+
+The epeg library was developed within the [Enlightenment](http://www.enlightenment.org) project. 
+As of some unknown version the epeg library disappeared from the project or was merged into some other library.
+The last version of epeg I know of is epeg [v0.9.1.042](https://github.com/mattes/epeg/archive/v0.9.1.042.zip).
+
+**Please note that the latest master branch of this repository contains code updates and improvements.**
 
 License
-===
+-------
 Copyright (C) 2000 Carsten Haitzler and various contributors (see AUTHORS)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
