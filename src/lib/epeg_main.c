@@ -1317,6 +1317,7 @@ _jpeg_empty_output_buffer(j_compress_ptr cinfo)
    p = realloc(*(dst_mgr->im->out.mem.data), *(dst_mgr->im->out.mem.size));
    if (p)
      {
+	*(dst_mgr->im->out.mem.data) = p;
 	memcpy(p + psize, dst_mgr->buf, 65536);
 	dst_mgr->dst_mgr.free_in_buffer = 65536;
 	dst_mgr->dst_mgr.next_output_byte = (JOCTET *)dst_mgr->buf;
