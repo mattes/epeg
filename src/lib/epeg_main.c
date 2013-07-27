@@ -1098,13 +1098,12 @@ _epeg_decode_for_trim(Epeg_Image *im)
 static int
 _epeg_trim(Epeg_Image *im)
 {
-   int            y, a, b, w, h;
+   int            y, a, b, h;
    
    if ((im->in.w == im->out.w) && (im->in.h == im->out.h)) return 1;
    if (im->scaled) return 1;
    
    im->scaled = 1;
-   w = im->out.w;
    h = im->out.h;
    a = im->out.x;
    b = im->out.y;
