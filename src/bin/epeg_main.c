@@ -79,7 +79,7 @@ main(int argc, char **argv)
 	   break;
 	   case 'q':
 	   thumb_quality = strtol(optarg, NULL, 10);
-	   if (thumb_quality < 1 | thumb_quality > 100) {
+	   if (thumb_quality < 1 || thumb_quality > 100) {
 	       fprintf(stderr, "setting thumb_quality to default of 85\n");
 	       thumb_quality = 85;
 	   }
