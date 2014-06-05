@@ -36,7 +36,7 @@ Bindings
 Blog posts
 ----------
 
- * [blazing fast epeg photo resize on raspberry pi](http://blog.sunekaae.com/2013/04/blazing-fast-epeg-photo-resize-on_3.html)
+ * [blazing fast epeg photo resize on raspberry pi](http://blog.sunekaae.com/2013/04/blazing-fast-epeg-photo-resize-on_3.html) by Sune Kaae
 
 
 
