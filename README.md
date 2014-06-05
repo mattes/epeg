@@ -28,6 +28,18 @@ The last version of epeg I know of is epeg [v0.9.1.042](https://github.com/matte
 
 **Please note that the latest master branch of this repository contains code updates and improvements.**
 
+Bindings
+--------
+ * Python, https://github.com/jbaiter/epeg-cffi, https://pypi.python.org/pypi/epeg-cffi
+
+
+Blog posts
+----------
+
+ * [blazing fast epeg photo resize on raspberry pi](http://blog.sunekaae.com/2013/04/blazing-fast-epeg-photo-resize-on_3.html)
+
+
+
 License
 -------
 Copyright (C) 2000 Carsten Haitzler and various contributors (see AUTHORS)
