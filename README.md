@@ -31,7 +31,7 @@ The last version of epeg I know of is epeg [v0.9.1.042](https://github.com/matte
 Bindings
 --------
  * Python, https://github.com/jbaiter/epeg-cffi, https://pypi.python.org/pypi/epeg-cffi
-
+ * Node.js, https://www.npmjs.org/package/epeg
 
 Blog posts
 ----------
