@@ -32,7 +32,7 @@ dnl AC_CHECK_FUNCS(fmemopen)
 dnl AC_CHECK_FUNCS(open_memstream)
 
 my_includes=""
-my_libs="-ljpeg"
+my_libs="-ljpeg -lexif"
 AC_SUBST(my_includes)
 AC_SUBST(my_libs)
 

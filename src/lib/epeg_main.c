@@ -11,10 +11,9 @@ static int           _epeg_encode              (Epeg_Image *im);
 
 static void          _epeg_fatal_error_handler (j_common_ptr cinfo);
 
-#define MIN(__x,__y) ((__x) < (__y) ? (__x) : (__y))
-#define MAX(__x,__y) ((__x) > (__y) ? (__x) : (__y))
-
 static const JOCTET fake_EOI[2] = { 0xFF, JPEG_EOI };
+
+static ExifByteOrder exif_byte_order = EXIF_BYTE_ORDER_INTEL;
 
 /**
  * Open a JPEG image by filename.
@@ -802,6 +801,8 @@ _epeg_open_header(Epeg_Image *im)
    
    jpeg_create_decompress(&(im->in.jinfo));
    jpeg_save_markers(&(im->in.jinfo), JPEG_APP0 + 7, 1024);
+   /* Save Exif markers */
+   jpeg_save_markers(&(im->in.jinfo), JPEG_APP0 + 1, 65535);
    jpeg_save_markers(&(im->in.jinfo), JPEG_COM,      65535);
    if (im->in.f != NULL)
      {
@@ -878,8 +879,28 @@ _epeg_open_header(Epeg_Image *im)
 		    }
 	       }
 	  }
-     }
-   return im;
+	else if (m->marker == (JPEG_APP0 + 1))
+	{
+	    /*
+	    *	Look for an Exif Orientation tag. If found,
+	    *	store it in im->in.orientation. Later, this will
+	    *	be written to the output jpeg Exif data.
+	    */
+            im->in.orientation = 0;
+            ExifData *ed = exif_data_new_from_data(m->data, m->data_length);
+            if (ed) {
+             	exif_byte_order = exif_data_get_byte_order(ed);
+             	ExifEntry *entry = exif_content_get_entry(ed->ifd[EXIF_IFD_0],EXIF_TAG_ORIENTATION);
+                if (entry) {
+                    im->in.orientation = exif_get_short(entry->data, exif_byte_order);
+                    exif_entry_unref(entry);
+	     	}
+	    }
+            // Should be able to release ed using unref, but this causes segfault. libexif bug?
+            // exif_data_unref(ed);
+     	}
+	return im;
+    }
 }
 
 /**
@@ -1122,6 +1143,20 @@ struct epeg_destination_mgr
    unsigned char *buf;
 };
 
+/* Get an existing tag, or create one if it doesn't exist */
+static ExifEntry *init_tag(ExifData *exif, ExifIfd ifd, ExifTag tag)
+{
+    ExifEntry *entry = exif_content_get_entry (exif->ifd[ifd], tag);
+    if (entry)
+        return entry;
+    entry = exif_entry_new ();
+    if (entry) {
+        exif_content_add_entry (exif->ifd[ifd], entry);
+        exif_entry_initialize (entry, tag);
+    }
+    return entry;
+}
+
 static int
 _epeg_encode(Epeg_Image *im)
 {
@@ -1200,9 +1235,29 @@ _epeg_encode(Epeg_Image *im)
      }
    jpeg_start_compress(&(im->out.jinfo), TRUE);
 
-   if (im->out.comment)
+   /* Set the image options for Exif */
+   ExifData *exif = exif_data_new();
+   exif_data_set_option(exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
+   exif_data_set_byte_order(exif, exif_byte_order);
+   exif_data_fix(exif);
+   /* Add Exif Orientation tag */
+   if (im->in.orientation != 0) {
+        ExifEntry *entry = init_tag(exif, EXIF_IFD_0, EXIF_TAG_ORIENTATION);
+        exif_set_short(entry->data, exif_byte_order, im->in.orientation);
+        exif_entry_unref(entry);
+   }
+   /* Write Exif data to output jpeg file */
+   unsigned char *exif_data;
+   unsigned int exif_data_len;
+   exif_data_save_data(exif, &exif_data, &exif_data_len);
+   jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 1, exif_data, exif_data_len);
+   exif_data_unref(exif);
+
+   /* Output comment if there is one */
+   if (im->out.comment && *im->out.comment)
      jpeg_write_marker(&(im->out.jinfo), JPEG_COM, im->out.comment, strlen(im->out.comment));
    
+   /* Output thumbnail info in APP7 */
    if (im->out.thumbnail_info)
      {
 	char buf[8192];
@@ -1360,3 +1415,4 @@ METHODDEF(void)
 _format_message(j_common_ptr cinfo, char * buffer)
 {
 }
+
