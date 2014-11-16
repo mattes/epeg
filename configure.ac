@@ -5,7 +5,7 @@ rm -f config.cache
 
 AC_INIT(epeg, 0.9.1.042, enlightenment-devel@lists.sourceforge.net)
 AC_PREREQ(2.52)
-AC_CONFIG_SRCDIR(configure.in)
+AC_CONFIG_SRCDIR(configure.ac)
 
 AM_INIT_AUTOMAKE(1.6 dist-bzip2)
 AM_CONFIG_HEADER(config.h)
@@ -30,6 +30,9 @@ AC_SUBST(version_info)
 
 dnl AC_CHECK_FUNCS(fmemopen)
 dnl AC_CHECK_FUNCS(open_memstream)
+
+AC_CHECK_LIB([jpeg], [main], [], [echo "libjpeg library not found. Please install it before proceeding"; exit -1])
+AC_CHECK_LIB([exif], [main], [], [echo "libexif library not found. Please install it before proceeding"; exit -1])
 
 my_includes=""
 my_libs="-ljpeg -lexif"

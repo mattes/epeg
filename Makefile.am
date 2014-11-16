@@ -9,7 +9,7 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 config.guess \
 		       epeg.spec debian/changelog
 
 EXTRA_DIST = README AUTHORS COPYING COPYING-PLAIN \
-	     epeg.spec epeg.spec.in epeg.c.in gendoc \
+	     autogen.sh epeg.spec epeg.spec.in epeg.c.in gendoc \
 	     Doxyfile \
              debian/changelog \
              debian/changelog.in \
