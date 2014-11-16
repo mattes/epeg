@@ -5,7 +5,7 @@ rm -f config.cache
 
 AC_INIT(epeg, 0.9.1.042, enlightenment-devel@lists.sourceforge.net)
 AC_PREREQ(2.52)
-AC_CONFIG_SRCDIR(configure.in)
+AC_CONFIG_SRCDIR(configure.ac)
 
 AM_INIT_AUTOMAKE(1.6 dist-bzip2)
 AM_CONFIG_HEADER(config.h)
