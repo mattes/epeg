@@ -31,6 +31,9 @@ AC_SUBST(version_info)
 dnl AC_CHECK_FUNCS(fmemopen)
 dnl AC_CHECK_FUNCS(open_memstream)
 
+AC_CHECK_LIB([jpeg], [main], [], [echo "libjpeg library not found. Please install it before proceeding"; exit -1])
+AC_CHECK_LIB([exif], [main], [], [echo "libexif library not found. Please install it before proceeding"; exit -1])
+
 my_includes=""
 my_libs="-ljpeg -lexif"
 AC_SUBST(my_includes)
