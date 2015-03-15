@@ -4,10 +4,13 @@
 #include <getopt.h>
 #include <string.h>
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+
 static int verbose_flag = 0;
 static int thumb_width = 0; // < 0 means % of input
 static int thumb_height = 0; // < 0 means % of input
 static int max_dimension = 0; // > 0 means we reduce max(w,h) to max_dimension, with aspect preserved
+static int inset_flag = 0; // Ensure specified dimensions will be covered
 static int thumb_quality = 85; // Quality value from 1 to 100
 static char *thumb_comment = NULL;
 static struct option long_options[] =
@@ -16,6 +19,7 @@ static struct option long_options[] =
     {"width",   required_argument, 0, 'w'},
     {"height",  required_argument, 0, 'h'},
     {"max",     required_argument, 0, 'm'},
+    {"inset",   no_argument,       0, 'i'},
     {"quality", required_argument, 0, 'q'},
     {"comment", required_argument, 0, 'c'},
     {0, 0, 0, 0}
@@ -29,6 +33,7 @@ usage(const char *myname)
 	   " -w,  --width=<width>[%%]   set thumbnail width [%% of input]\n"
 	   " -h,  --height=<heigth>[%%] set thumbnail heigth [%% of input]\n"
 	   " -m,  --max=<maximum>       reduce max(w,h) to maximum, with aspect preserved\n"
+	   " -i,  --inset               cover at least the specified size (no upscaling or cropping)\n"
 	   " -c,  --comment=<comment>   put a comment in thumbnail\n"
 	   " -q,  --quality=<quality>   set thumbnail quality (1-100)\n", myname);
     exit(0);
@@ -43,7 +48,7 @@ main(int argc, char **argv)
    char *input_file = NULL, *output_file = NULL;
    char *p;
 
-   while ((c = getopt_long(argc, argv, "w:h:vc:m:q:", long_options, &option_index)) != -1) {
+   while ((c = getopt_long(argc, argv, "w:h:vic:m:q:", long_options, &option_index)) != -1) {
        switch (c) {
        case 0:
 	   usage(argv[0]);
@@ -77,13 +82,17 @@ main(int argc, char **argv)
 	   max_dimension = strtol(optarg, NULL, 10);
 	   if (verbose_flag) printf("max_dimension = %d\n", max_dimension);
 	   break;
-	   case 'q':
+       case 'q':
 	   thumb_quality = strtol(optarg, NULL, 10);
 	   if (thumb_quality < 1 | thumb_quality > 100) {
 	       fprintf(stderr, "setting thumb_quality to default of 85\n");
 	       thumb_quality = 85;
 	   }
 	   if (verbose_flag) printf("thumb_quality = %d\n", thumb_quality);
+	   break;
+       case 'i':
+           inset_flag = 1;
+           break;
        case 'c':
 	   thumb_comment = strdup(optarg);
 	   if (verbose_flag) printf("thumb_comment = %s\n", thumb_comment);
@@ -145,13 +154,16 @@ main(int argc, char **argv)
        }
 
        if (max_dimension > 0) {
-	   if (w > h) {
+	   if (w > h ^ inset_flag) {
 	       thumb_width = max_dimension;
 	       thumb_height = max_dimension * h / w;
 	   } else {
 	       thumb_height = max_dimension;
 	       thumb_width = max_dimension * w / h;
 	   }
+       } else if (inset_flag) {
+           thumb_width = MAX(thumb_width, thumb_height * w / h);
+           thumb_height = MAX(thumb_height, thumb_width * h / w);
        }
    }
    
