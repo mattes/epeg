@@ -648,6 +648,23 @@ epeg_quality_set(Epeg_Image *im, int quality)
 }
 
 /**
+ * Crop a thumbnail after scaling
+ * @param im A handle to an opened Epeg image.
+ * @param top Pixels to remove from the top
+ * @param bottom Pixels to remove from the bottom
+ * @param left Pixels to remove from the left
+ * @param right Pixels to remove from the right
+ */
+EAPI void
+epeg_crop_set(Epeg_Image *im, int top, int bottom, int left, int right)
+{
+   im->out.crop_t = (top > 0 ? top : 0);
+   im->out.crop_b = (bottom > 0 ? bottom : 0);
+   im->out.crop_l = (left > 0 ? left : 0);
+   im->out.crop_r = (right > 0 ? right : 0);
+}
+
+/**
  * Enable thumbnail comments in saved image.
  * @param im A handle to an opened Epeg image.
  * @param onoff A boolean on and off enabling flag.
@@ -708,8 +725,8 @@ epeg_memory_output_set(Epeg_Image *im, unsigned char **data, int *size)
  * 
  * This saves the image @p im to its destination specified by
  * epeg_file_output_set() or epeg_memory_output_set(). The image will be
- * encoded at the deoded pixel size, using the quality, comment and thumbnail
- * comment settings set on the image.
+ * encoded at the deoded pixel size, using the quality, crop, comment and
+ * thumbnail comment settings set on the image.
  *
  * retval 1 - error scale
  *        2 - error encode
@@ -762,6 +779,7 @@ epeg_close(Epeg_Image *im)
    if (!im) return;
    if (im->pixels)                   free(im->pixels);
    if (im->lines)                    free(im->lines);
+   if (im->cropped_lines)            free(im->cropped_lines);
    if (im->in.file)                  free(im->in.file);
    if (!im->in.file)                 free(im->in.jinfo.src);
    if (im->in.f || im->in.mem.data)  jpeg_destroy_decompress(&(im->in.jinfo));
@@ -983,10 +1001,22 @@ _epeg_decode(Epeg_Image *im)
 	return 1;
      }
 	
+   im->cropped_lines = malloc(im->in.jinfo.output_height * sizeof(char *));
+   if (!im->cropped_lines)
+     {
+	free(im->pixels);
+	im->pixels = NULL;
+	free(im->lines);
+	im->lines = NULL;
+	return 1;
+     }
+
    jpeg_start_decompress(&(im->in.jinfo));
    
-   for (y = 0; y < im->in.jinfo.output_height; y++)
+   for (y = 0; y < im->in.jinfo.output_height; y++) {
      im->lines[y] = im->pixels + (y * im->in.jinfo.output_components * im->in.jinfo.output_width);
+     im->cropped_lines[y] = im->lines[y] + (im->out.crop_l * im->in.jinfo.output_components);
+   }
    
    while (im->in.jinfo.output_scanline < im->in.jinfo.output_height)
      {
@@ -1025,7 +1055,7 @@ _epeg_scale(Epeg_Image *im)
 	row = im->pixels + (((y * im->in.jinfo.output_height) / h) * im->in.jinfo.output_components * im->in.jinfo.output_width);
 	dst = im->pixels + (y * im->in.jinfo.output_components * im->in.jinfo.output_width);
 	
-	for (x = 0; x < im->out.w; x++)
+	for (x = 0; x < w; x++)
 	  {
 	     src = row + (((x * im->in.jinfo.output_width) / w) * im->in.jinfo.output_components);
 	     for (i = 0; i < im->in.jinfo.output_components; i++)
@@ -1163,7 +1193,8 @@ _epeg_encode(Epeg_Image *im)
    struct epeg_destination_mgr *dst_mgr = NULL;
    int ok = 0;
 
-   if ((im->out.w < 1) || (im->out.h < 1)) return 1;
+   if ((im->out.w - im->out.crop_l - im->out.crop_r) < 1) return 1;
+   if ((im->out.h - im->out.crop_t - im->out.crop_b) < 1) return 1;
    if (im->out.f) return 1;
    
    if (im->out.file)
@@ -1218,6 +1249,10 @@ _epeg_encode(Epeg_Image *im)
      }
    im->out.jinfo.image_width      = im->out.w;
    im->out.jinfo.image_height     = im->out.h;
+   if(im->cropped_lines) {
+        im->out.jinfo.image_width -= (im->out.crop_l + im->out.crop_r);
+        im->out.jinfo.image_height -= (im->out.crop_t + im->out.crop_b);
+   }
    im->out.jinfo.input_components = im->in.jinfo.output_components;
    im->out.jinfo.in_color_space   = im->in.jinfo.out_color_space;
    im->out.jinfo.dct_method	  = im->in.jinfo.dct_method;
@@ -1277,8 +1312,13 @@ _epeg_encode(Epeg_Image *im)
 	jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 7, buf, strlen(buf));
      }
    
-   while (im->out.jinfo.next_scanline < im->out.h)
-     jpeg_write_scanlines(&(im->out.jinfo), &(im->lines[im->out.jinfo.next_scanline]), 1);
+   if(im->cropped_lines) {
+     while (im->out.jinfo.next_scanline < im->out.jinfo.image_height)
+       jpeg_write_scanlines(&(im->out.jinfo), &(im->cropped_lines[im->out.crop_t + im->out.jinfo.next_scanline]), 1);
+   } else {
+     while (im->out.jinfo.next_scanline < im->out.jinfo.image_height)
+       jpeg_write_scanlines(&(im->out.jinfo), &(im->lines[im->out.jinfo.next_scanline]), 1);
+   }
    jpeg_finish_compress(&(im->out.jinfo));
 
    done:

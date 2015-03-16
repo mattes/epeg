@@ -62,6 +62,7 @@ extern "C" {
    EAPI void          epeg_thumbnail_comments_get    (Epeg_Image *im, Epeg_Thumbnail_Info *info);
    EAPI void          epeg_comment_set               (Epeg_Image *im, const char *comment);
    EAPI void          epeg_quality_set               (Epeg_Image *im, int quality);
+   EAPI void          epeg_crop_set                  (Epeg_Image *im, int top, int bottom, int left, int right);
    EAPI void          epeg_thumbnail_comments_enable (Epeg_Image *im, int onoff);
    EAPI void          epeg_file_output_set           (Epeg_Image *im, const char *file);
    EAPI void          epeg_memory_output_set         (Epeg_Image *im, unsigned char **data, int *size);

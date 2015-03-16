@@ -30,6 +30,7 @@ struct _Epeg_Image
    struct stat                     stat_info;
    unsigned char                  *pixels;
    unsigned char                 **lines;
+   unsigned char                 **cropped_lines;
    
    char                            scaled : 1;
    
@@ -64,6 +65,7 @@ struct _Epeg_Image
       } mem;
       int                          x, y;
       int                          w, h;
+      int                          crop_t, crop_b, crop_l, crop_r;
       char                        *comment;
       FILE                        *f;
       struct jpeg_compress_struct  jinfo;
