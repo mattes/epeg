@@ -899,8 +899,8 @@ _epeg_open_header(Epeg_Image *im)
             // Should be able to release ed using unref, but this causes segfault. libexif bug?
             // exif_data_unref(ed);
      	}
-	return im;
     }
+    return im;
 }
 
 /**
