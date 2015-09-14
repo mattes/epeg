@@ -893,11 +893,12 @@ _epeg_open_header(Epeg_Image *im)
              	ExifEntry *entry = exif_content_get_entry(ed->ifd[EXIF_IFD_0],EXIF_TAG_ORIENTATION);
                 if (entry) {
                     im->in.orientation = exif_get_short(entry->data, exif_byte_order);
-                    exif_entry_unref(entry);
+                    // do not unref the entry since exif_content_get_entry does not copy the memory, 
+                    // it returns the entry pointer from ed, this is the reason way exif_data_unref throws segfault
+                    // exif_entry_unref(entry);
 	     	}
-	    }
-            // Should be able to release ed using unref, but this causes segfault. libexif bug?
-            // exif_data_unref(ed);
+	    }            
+            exif_data_unref(ed);
      	}
     }
     return im;
