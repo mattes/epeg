@@ -9,6 +9,7 @@
 static int verbose_flag = 0;
 static int thumb_width = 0; // < 0 means % of input
 static int thumb_height = 0; // < 0 means % of input
+static int preserve_flag = 0; // preserve aspect
 static int max_dimension = 0; // > 0 means we reduce max(w,h) to max_dimension, with aspect preserved
 static int inset_flag = 0; // Ensure specified dimensions will be covered
 static int thumb_quality = 85; // Quality value from 1 to 100
@@ -18,6 +19,7 @@ static struct option long_options[] =
     {"verbose", no_argument,       0, 'v'},
     {"width",   required_argument, 0, 'w'},
     {"height",  required_argument, 0, 'h'},
+    {"preserve",no_argument,       0, 'p'},
     {"max",     required_argument, 0, 'm'},
     {"inset",   no_argument,       0, 'i'},
     {"quality", required_argument, 0, 'q'},
@@ -32,6 +34,7 @@ usage(const char *myname)
 	   " -v,  --verbose\n"
 	   " -w,  --width=<width>[%%]   set thumbnail width [%% of input]\n"
 	   " -h,  --height=<heigth>[%%] set thumbnail heigth [%% of input]\n"
+	   " -p,  --preserve            preserve aspect if only one of width and height given\n"
 	   " -m,  --max=<maximum>       reduce max(w,h) to maximum, with aspect preserved\n"
 	   " -i,  --inset               cover at least the specified size (no upscaling or cropping)\n"
 	   " -c,  --comment=<comment>   put a comment in thumbnail\n"
@@ -48,7 +51,7 @@ main(int argc, char **argv)
    char *input_file = NULL, *output_file = NULL;
    char *p;
 
-   while ((c = getopt_long(argc, argv, "w:h:vic:m:q:", long_options, &option_index)) != -1) {
+   while ((c = getopt_long(argc, argv, "w:h:vipc:m:q:", long_options, &option_index)) != -1) {
        switch (c) {
        case 0:
 	   usage(argv[0]);
@@ -77,6 +80,9 @@ main(int argc, char **argv)
 	       if ((p = strstr(optarg, "%"))) thumb_height = -thumb_height;
 	   }
 	   if (verbose_flag) printf("thumb_height = %d\n", thumb_height);
+	   break;
+       case 'p':
+	   preserve_flag = 1;
 	   break;
        case 'm':
 	   max_dimension = strtol(optarg, NULL, 10);
@@ -164,6 +170,13 @@ main(int argc, char **argv)
        } else if (inset_flag) {
            thumb_width = MAX(thumb_width, thumb_height * w / h);
            thumb_height = MAX(thumb_height, thumb_width * h / w);
+       }
+
+       if (preserve_flag == 1) {
+        if (thumb_width == 0)
+         thumb_width = w * thumb_height / h;
+        if (thumb_height == 0)
+         thumb_height = h * thumb_width / w;
        }
    }
    
