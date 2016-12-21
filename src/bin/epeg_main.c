@@ -31,7 +31,7 @@ usage(const char *myname)
     printf("Usage: %s [options] input.jpg thumb.jpg\n"
 	   " -v,  --verbose\n"
 	   " -w,  --width=<width>[%%]   set thumbnail width [%% of input]\n"
-	   " -h,  --height=<heigth>[%%] set thumbnail heigth [%% of input]\n"
+	   " -h,  --height=<height>[%%] set thumbnail height [%% of input]\n"
 	   " -m,  --max=<maximum>       reduce max(w,h) to maximum, with aspect preserved\n"
 	   " -i,  --inset               cover at least the specified size (no upscaling or cropping)\n"
 	   " -c,  --comment=<comment>   put a comment in thumbnail\n"
