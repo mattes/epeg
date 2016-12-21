@@ -33,7 +33,7 @@ usage(const char *myname)
     printf("Usage: %s [options] input.jpg thumb.jpg\n"
 	   " -v,  --verbose\n"
 	   " -w,  --width=<width>[%%]   set thumbnail width [%% of input]\n"
-	   " -h,  --height=<heigth>[%%] set thumbnail heigth [%% of input]\n"
+	   " -h,  --height=<height>[%%] set thumbnail height [%% of input]\n"
 	   " -p,  --preserve            preserve aspect if only one of width and height given\n"
 	   " -m,  --max=<maximum>       reduce max(w,h) to maximum, with aspect preserved\n"
 	   " -i,  --inset               cover at least the specified size (no upscaling or cropping)\n"
@@ -90,7 +90,7 @@ main(int argc, char **argv)
 	   break;
        case 'q':
 	   thumb_quality = strtol(optarg, NULL, 10);
-	   if (thumb_quality < 1 | thumb_quality > 100) {
+	   if (thumb_quality < 1 || thumb_quality > 100) {
 	       fprintf(stderr, "setting thumb_quality to default of 85\n");
 	       thumb_quality = 85;
 	   }

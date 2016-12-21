@@ -1120,13 +1120,12 @@ _epeg_decode_for_trim(Epeg_Image *im)
 static int
 _epeg_trim(Epeg_Image *im)
 {
-   int            y, a, b, w, h;
+   int            y, a, b, h;
    
    if ((im->in.w == im->out.w) && (im->in.h == im->out.h)) return 1;
    if (im->scaled) return 1;
    
    im->scaled = 1;
-   w = im->out.w;
    h = im->out.h;
    a = im->out.x;
    b = im->out.y;
@@ -1248,11 +1247,12 @@ _epeg_encode(Epeg_Image *im)
         exif_entry_unref(entry);
    }
    /* Write Exif data to output jpeg file */
-   unsigned char *exif_data;
+   unsigned char *exif_data = NULL;
    unsigned int exif_data_len;
    exif_data_save_data(exif, &exif_data, &exif_data_len);
    jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 1, exif_data, exif_data_len);
    exif_data_unref(exif);
+   free(exif_data);
 
    /* Output comment if there is one */
    if (im->out.comment && *im->out.comment)
