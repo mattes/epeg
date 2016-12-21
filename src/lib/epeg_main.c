@@ -1247,11 +1247,12 @@ _epeg_encode(Epeg_Image *im)
         exif_entry_unref(entry);
    }
    /* Write Exif data to output jpeg file */
-   unsigned char *exif_data;
+   unsigned char *exif_data = NULL;
    unsigned int exif_data_len;
    exif_data_save_data(exif, &exif_data, &exif_data_len);
    jpeg_write_marker(&(im->out.jinfo), JPEG_APP0 + 1, exif_data, exif_data_len);
    exif_data_unref(exif);
+   free(exif_data);
 
    /* Output comment if there is one */
    if (im->out.comment && *im->out.comment)
