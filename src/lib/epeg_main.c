@@ -103,6 +103,22 @@ epeg_size_get(Epeg_Image *im, int *w, int *h)
 }
 
 /**
+ * Return the original JPEG orientation.
+ * @param im A handle to an opened Epeg image.
+ * @param orientation A pointer to the orientation value to be filled in.
+ * 
+ * Returns the image orientation.
+ * 
+ */
+
+EAPI void
+epeg_orientation_get(Epeg_Image *im, int *orientation)
+{
+   if (orientation) *orientation = im->in.orientation;
+}
+
+
+/**
  * Return the original JPEG pixel color space.
  * @param im A handle to an opened Epeg image.
  * @param space A pointer to the color space value to be filled in.
