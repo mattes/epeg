@@ -54,6 +54,8 @@ extern "C" {
    EAPI Epeg_Image   *epeg_memory_open               (unsigned char *data, int size);
    EAPI void          epeg_size_get                  (Epeg_Image *im, int *w, int *h);
    EAPI void          epeg_decode_size_set           (Epeg_Image *im, int w, int h);
+   EAPI void          epeg_orientation_get           (Epeg_Image *im, int *orientation);
+   EAPI void          epeg_orientation_set           (Epeg_Image *im, int orientation);
    EAPI void          epeg_colorspace_get            (Epeg_Image *im, int *space);
    EAPI void          epeg_decode_colorspace_set     (Epeg_Image *im, Epeg_Colorspace colorspace);
    EAPI const void   *epeg_pixels_get                (Epeg_Image *im, int x, int y, int w, int h);

@@ -103,6 +103,35 @@ epeg_size_get(Epeg_Image *im, int *w, int *h)
 }
 
 /**
+ * Return the original JPEG orientation.
+ * @param im A handle to an opened Epeg image.
+ * @param orientation A pointer to the orientation value to be filled in.
+ * 
+ * Returns the image orientation.
+ * 
+ */
+
+EAPI void
+epeg_orientation_get(Epeg_Image *im, int *orientation)
+{
+   if (orientation) *orientation = im->in.orientation;
+}
+
+/**
+ * Sets the image orientation.
+ * @param im A handle to an opened Epeg image.
+ * @param orientation The orientation value to set.
+ * 
+ * 
+ */
+
+EAPI void
+epeg_orientation_set(Epeg_Image *im, int orientation)
+{
+   im->in.orientation = orientation;
+}
+
+/**
  * Return the original JPEG pixel color space.
  * @param im A handle to an opened Epeg image.
  * @param space A pointer to the color space value to be filled in.
@@ -771,7 +800,7 @@ epeg_close(Epeg_Image *im)
    if (im->in.thumb_info.mime)       free(im->in.thumb_info.mime);
    if (im->out.file)                 free(im->out.file);
    if (!im->out.file)                free(im->out.jinfo.dest);
-   if (im->out.f || im->in.mem.data) jpeg_destroy_compress(&(im->out.jinfo));
+   if (im->out.f || im->out.mem.data) jpeg_destroy_compress(&(im->out.jinfo));
    if (im->out.f)                    fclose(im->out.f);
    if (im->out.comment)              free(im->out.comment);
    free(im);
