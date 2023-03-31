@@ -117,6 +117,19 @@ epeg_orientation_get(Epeg_Image *im, int *orientation)
    if (orientation) *orientation = im->in.orientation;
 }
 
+/**
+ * Sets the image orientation.
+ * @param im A handle to an opened Epeg image.
+ * @param orientation The orientation value to set.
+ * 
+ * 
+ */
+
+EAPI void
+epeg_orientation_set(Epeg_Image *im, int orientation)
+{
+   im->in.orientation = orientation;
+}
 
 /**
  * Return the original JPEG pixel color space.
