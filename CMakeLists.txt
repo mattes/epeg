@@ -8,6 +8,12 @@ option(BUILD_SHARED_LIB "Build shared library" ON)
 
 
 # Build configuration
+# this project needs libjpeg and libexif.
+# in order to build the shared library, the static or shared libraries of libjpeg
+# and libexif must be found.
+# if they are not in a standard location, you can specify:
+# CMAKE_FIND_ROOT_PATH or JPEG_INCLUDE_DIRECTORY/EXIF_INCLUDE_DIRECTORY and
+# JPEG_LIB_DIRECTORY/EXIF_LIB_DIRECTORY
 ################################################################################
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -32,58 +38,72 @@ list(SORT libepeg_SRC)
 
 set(libepeg_HEADER src/lib/Epeg.h)
 
-include(CheckIncludeFile)
 
-if(DEFINED JPEG_INCLUDE_DIRECTORY)
-    include_directories(BEFORE SYSTEM "${JPEG_INCLUDE_DIRECTORY}")
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${JPEG_INCLUDE_DIRECTORY})
-endif()
-
-if(DEFINED EXIF_INCLUDE_DIRECTORY)
-    include_directories(BEFORE SYSTEM "${EXIF_INCLUDE_DIRECTORY}")
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${EXIF_INCLUDE_DIRECTORY})
-endif()
-
-CHECK_INCLUDE_FILE(jerror.h HAS_LIBJPEG)
-if(NOT HAS_LIBJPEG)
+find_path(JPEG_DIR_HEADER NAME jerror.h HINTS "${JPEG_INCLUDE_DIRECTORY}")
+if (NOT JPEG_DIR_HEADER)
     message(FATAL_ERROR "Error: jerror.h not found, you must first install libjpeg or specify JPEG_INCLUDE_DIRECTORY!")
 endif()
 
+message(STATUS "Found jerror.h...")
+include_directories(BEFORE SYSTEM "${JPEG_DIR_HEADER}")
 
-CHECK_INCLUDE_FILE(libexif/exif-data.h HAS_LIBEXIF)
-if(NOT HAS_LIBEXIF)
+
+find_path(EXIF_DIR_HEADER NAME libexif/exif-data.h HINTS "${EXIF_INCLUDE_DIRECTORY}")
+if (NOT EXIF_DIR_HEADER)
     message(FATAL_ERROR "Error: libexif/exif-data.h not found, you must first install libexif or specify EXIF_INCLUDE_DIRECTORY!")
 endif()
+
+message(STATUS "Found libexif/exif-data.h...")
+include_directories(BEFORE SYSTEM "${EXIF_DIR_HEADER}")
+
+
 
 # Build
 ################################################################################
 
 # Build library
 if (BUILD_SHARED_LIB)
-    message("* Building shared library")
+    message(STATUS "Building shared library")
+    if(NOT DEFINED JPEG_LIB_DIRECTORY)
+        set(JPEG_LIB_DIRECTORY ${JPEG_DIR_HEADER}/../lib)
+    endif()
+    find_library(JPEG_LIBRARY NAMES jpeg HINTS ${JPEG_LIB_DIRECTORY})
+    if (NOT JPEG_LIBRARY)
+        message(FATAL_ERROR "Error: cant find jpeg library, you must first install libjpeg or specify JPEG_LIB_DIRECTORY!")
+    endif()
+
+
+    if(NOT DEFINED EXIF_LIB_DIRECTORY)
+        set(EXIF_LIB_DIRECTORY ${EXIF_DIR_HEADER}/../lib)
+    endif()
+    find_library(EXIF_LIBRARY NAMES exif HINTS ${EXIF_LIB_DIRECTORY})
+    if (NOT EXIF_LIBRARY)
+        message(FATAL_ERROR "Error: cant find exif library, you must first install libexif or specify EXIF_LIB_DIRECTORY!")
+    endif()
+
+
     add_library(epeg_shared SHARED ${libepeg_SRC})
-    target_link_libraries(epeg_shared ${EXTRA_LIBS})
+    if(WIN32)
+        target_compile_definitions(epeg_shared PUBLIC BUILDING_DLL)
+    endif()
+    target_link_libraries(epeg_shared ${JPEG_LIBRARY} ${EXIF_LIBRARY})
     set_target_properties(epeg_shared PROPERTIES OUTPUT_NAME epeg)
+
+    install(TARGETS epeg_shared DESTINATION lib)
 endif()
 
 if (BUILD_STATIC_LIB)
-    message("* Building static library")
+    message(STATUS "Building static library")
     add_library(epeg_static STATIC ${libepeg_SRC})
-    target_link_libraries(epeg_static ${EXTRA_LIBS})
     set_target_properties(epeg_static PROPERTIES OUTPUT_NAME epeg)
+
+    install(TARGETS epeg_static DESTINATION lib)
 endif()
 
 if (NOT EXISTS src/lib/config.h)
     file(WRITE src/lib/config.h "")
 endif()
 
-
-if (BUILD_SHARED_LIB)
-    install(TARGETS epeg_shared DESTINATION lib)
-endif()
-if (BUILD_STATIC_LIB)
-    install(TARGETS epeg_static DESTINATION lib)
-endif()
 
 install(FILES ${libepeg_HEADER} DESTINATION include)
 
