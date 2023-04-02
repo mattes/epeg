@@ -160,7 +160,7 @@ main(int argc, char **argv)
        }
 
        if (max_dimension > 0) {
-	   if (w > h ^ inset_flag) {
+	   if (w > (h ^ inset_flag)) {
 	       thumb_width = max_dimension;
 	       thumb_height = max_dimension * h / w;
 	   } else {
