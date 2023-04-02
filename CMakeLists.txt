@@ -22,7 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Platform specific build configuration
 ################################################################################
 
-if(MSVC)
+if(WIN32)
     message(STATUS "Building for windows")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
