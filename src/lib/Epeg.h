@@ -7,8 +7,10 @@
 #ifdef WIN32
 # ifdef BUILDING_DLL
 #  define EAPI __declspec(dllexport)
-# else
+# elif defined(USE_EPEG_DLL)
 #  define EAPI __declspec(dllimport)
+# else
+#  define EAPI
 # endif
 #else
 # ifdef __GNUC__
