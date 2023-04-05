@@ -3,8 +3,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 AM_CPPFLAGS = \
 -I../lib \
--I$(top_srcdir)/src/lib \
-@my_includes@
+-I$(top_srcdir)/src/lib
 
 bin_PROGRAMS = epeg
 
